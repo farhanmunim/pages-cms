@@ -1,4 +1,7 @@
-# Astro + Pages CMS website
+# [ARCHIVED] Astro + Pages CMS website
+
+> **This repository is sunset and archived.** It is kept for reference only and is no longer
+> maintained or deployed.
 
 A Git-based website: content is edited in **[Pages CMS](https://pagescms.org)**, stored as plain
 files in this repository, built by **[Astro](https://astro.build)** and deployed to
