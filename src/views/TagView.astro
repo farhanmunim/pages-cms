@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import EntryGrid from '../components/EntryGrid.astro';
+import { entriesWithTag, getPermalinks, href } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'tags'>;
+}
+
+const { entry } = Astro.props;
+const permalinks = await getPermalinks();
+const entries = await entriesWithTag(entry.id);
+---
+
+<Base title={`Tag: ${entry.data.name}`}>
+  <p class="meta"><a href={href(permalinks.tags)}>Tags</a></p>
+  <h1>#{entry.data.name}</h1>
+  <div class="section">
+    <EntryGrid entries={entries} empty="Nothing tagged yet." />
+  </div>
+</Base>

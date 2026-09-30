@@ -1,0 +1,53 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import EntryGrid from '../components/EntryGrid.astro';
+import { CONTENT_KEYS, LABELS, getPermalinks, getPublished, getSite, href, isFeatured, isPublished } from '../lib/content';
+
+const site = await getSite();
+const permalinks = await getPermalinks();
+
+// Optional: a page with the slug "home" is rendered at the top of the homepage.
+const home = await getEntry('pages', 'home');
+const Home = home && isPublished(home) ? (await render(home)).Content : undefined;
+
+const featured = [];
+const latestPosts = (await getPublished('posts')).slice(0, 3);
+for (const key of CONTENT_KEYS) featured.push(...(await getPublished(key)).filter(isFeatured));
+---
+
+<Base description={home?.data.description ?? site.description}>
+  <section class="hero">
+    <h1>{site.name}</h1>
+    {site.tagline && <p>{site.tagline}</p>}
+  </section>
+
+  {Home && <div class="prose"><Home /></div>}
+
+  {featured.length > 0 && (
+    <section class="section">
+      <h2>Featured</h2>
+      <EntryGrid entries={featured} />
+    </section>
+  )}
+
+  <section class="section">
+    <h2>
+      Latest posts
+      {permalinks.posts && <a href={href(permalinks.posts)}>All posts →</a>}
+    </h2>
+    <EntryGrid entries={latestPosts} />
+  </section>
+
+  <section class="section">
+    <h2>Browse</h2>
+    <ul>
+      {CONTENT_KEYS.filter((k) => permalinks[k]).map((k) => (
+        <li><a href={href(permalinks[k])}>{LABELS[k]}</a></li>
+      ))}
+      {permalinks.categories && <li><a href={href(permalinks.categories)}>Categories</a></li>}
+      {permalinks.tags && <li><a href={href(permalinks.tags)}>Tags</a></li>}
+      {permalinks.authors && <li><a href={href(permalinks.authors)}>Authors</a></li>}
+    </ul>
+  </section>
+</Base>

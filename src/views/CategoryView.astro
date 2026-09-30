@@ -1,0 +1,38 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import EntryGrid from '../components/EntryGrid.astro';
+import { categoryFamily, getPermalinks, getPublished, href } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'categories'>;
+}
+
+const { entry } = Astro.props;
+const permalinks = await getPermalinks();
+const categories = await getCollection('categories');
+const parent = entry.data.parent ? categories.find((c) => c.id === entry.data.parent) : undefined;
+const children = categories.filter((c) => c.data.parent === entry.id);
+
+// Posts in this category or any of its sub-categories.
+const family = categoryFamily(entry.id, categories);
+const posts = (await getPublished('posts')).filter((p) =>
+  'categories' in p.data && p.data.categories.some((c) => family.includes(c)),
+);
+---
+
+<Base title={`Category: ${entry.data.name}`}>
+  <p class="meta">
+    <a href={href(permalinks.categories)}>Categories</a>
+    {parent && <> › <a href={href(permalinks.categories, parent.id)}>{parent.data.name}</a></>}
+  </p>
+  <h1>{entry.data.name}</h1>
+  {children.length > 0 && (
+    <ul class="pills">
+      {children.map((c) => <li><a href={href(permalinks.categories, c.id)}>{c.data.name}</a></li>)}
+    </ul>
+  )}
+  <div class="section">
+    <EntryGrid entries={posts} empty="No posts in this category yet." />
+  </div>
+</Base>

@@ -1,0 +1,39 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import EntryGrid from '../components/EntryGrid.astro';
+import { LABELS, authorName, entriesByAuthor } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'authors'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const name = authorName(entry);
+const groups = await entriesByAuthor(entry.id);
+---
+
+<Base title={name} image={entry.data.avatar}>
+  <div class="author-card">
+    {entry.data.avatar && <img src={entry.data.avatar} alt={name} />}
+    <div>
+      <h1>{name}</h1>
+      {entry.data.social.length > 0 && (
+        <ul class="pills">
+          {entry.data.social.map((s) => (
+            <li><a href={s.url} rel="me noopener">{s.handle || s.platform}</a></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+  <div class="prose"><Content /></div>
+
+  {groups.map(({ key, entries }) => (
+    <section class="section">
+      <h2>{LABELS[key]}</h2>
+      <EntryGrid entries={entries} />
+    </section>
+  ))}
+</Base>

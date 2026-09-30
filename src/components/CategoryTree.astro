@@ -1,0 +1,19 @@
+---
+import { getPermalinks, href, type CategoryNode } from '../lib/content';
+
+interface Props {
+  nodes: CategoryNode[];
+}
+
+const { nodes } = Astro.props;
+const permalinks = await getPermalinks();
+---
+
+<ul class="tree">
+  {nodes.map((node) => (
+    <li>
+      <a href={href(permalinks.categories, node.category.id)}>{node.category.data.name}</a>
+      {node.children.length > 0 && <Astro.self nodes={node.children} />}
+    </li>
+  ))}
+</ul>

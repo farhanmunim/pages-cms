@@ -1,0 +1,41 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Byline from '../components/Byline.astro';
+import TagList from '../components/TagList.astro';
+import { summaryOf, tagsOf, type ContentKey } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<ContentKey>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data as {
+  date?: Date;
+  categories?: string[];
+  url?: string;
+  attachment?: string;
+};
+---
+
+<Base title={entry.data.title} description={summaryOf(entry)} image={entry.data.cover?.image}>
+  <article>
+    <header>
+      <h1>{entry.data.title}</h1>
+      <Byline authorId={entry.data.author} date={d.date} status={entry.data.status} />
+      <TagList categoryIds={d.categories} tagIds={tagsOf(entry)} />
+    </header>
+
+    {entry.data.cover?.image && <img class="cover" src={entry.data.cover.image} alt={entry.data.cover.alt ?? ''} />}
+
+    {(d.url || d.attachment) && (
+      <p class="actions">
+        {d.url && <a class="button" href={d.url} rel="noopener">Visit link ↗</a>}
+        {d.attachment && <a class="button secondary" href={d.attachment} download>Download attachment</a>}
+      </p>
+    )}
+
+    <div class="prose"><Content /></div>
+  </article>
+</Base>

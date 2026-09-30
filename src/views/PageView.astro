@@ -1,0 +1,23 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Byline from '../components/Byline.astro';
+
+interface Props {
+  entry: CollectionEntry<'pages'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base title={entry.data.title} description={entry.data.description} image={entry.data.cover?.image}>
+  <article>
+    <header>
+      <h1>{entry.data.title}</h1>
+      <Byline authorId={entry.data.author} status={entry.data.status} />
+    </header>
+    {entry.data.cover?.image && <img class="cover" src={entry.data.cover.image} alt={entry.data.cover.alt ?? ''} />}
+    <div class="prose"><Content /></div>
+  </article>
+</Base>

@@ -1,0 +1,14 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import type { ContentKey } from '../lib/content';
+
+interface Props {
+  entries: CollectionEntry<ContentKey>[];
+  empty?: string;
+}
+
+const { entries, empty = 'Nothing published yet.' } = Astro.props;
+---
+
+{entries.length ? <ul class="grid">{entries.map((entry) => <Card entry={entry} />)}</ul> : <p>{empty}</p>}

@@ -1,0 +1,25 @@
+---
+import { getEntry } from 'astro:content';
+import { authorName, formatDate, getPermalinks, href } from '../lib/content';
+
+interface Props {
+  authorId?: string;
+  date?: Date;
+  status?: 'draft' | 'published';
+}
+
+const { authorId, date, status } = Astro.props;
+const author = authorId ? await getEntry('authors', authorId) : undefined;
+const permalinks = await getPermalinks();
+---
+
+<p class="meta">
+  {author && (
+    <a href={href(permalinks.authors, author.id)} class="meta">
+      {author.data.avatar && <img class="avatar" src={author.data.avatar} alt="" />}
+      {authorName(author)}
+    </a>
+  )}
+  {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
+  {status === 'draft' && <span class="badge draft">Draft</span>}
+</p>

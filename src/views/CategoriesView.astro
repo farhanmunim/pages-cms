@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import CategoryTree from '../components/CategoryTree.astro';
+import { categoryTree } from '../lib/content';
+
+const tree = categoryTree(await getCollection('categories'));
+---
+
+<Base title="Categories">
+  <h1>Categories</h1>
+  {tree.length ? <CategoryTree nodes={tree} /> : <p>No categories yet.</p>}
+</Base>

@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import EntryGrid from '../components/EntryGrid.astro';
+import { LABELS, getPublished, type ContentKey } from '../lib/content';
+
+interface Props {
+  collection: ContentKey;
+}
+
+const { collection } = Astro.props;
+const entries = await getPublished(collection);
+---
+
+<Base title={LABELS[collection]}>
+  <h1>{LABELS[collection]}</h1>
+  <EntryGrid entries={entries} />
+</Base>

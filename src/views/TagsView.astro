@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { getPermalinks, href } from '../lib/content';
+
+const permalinks = await getPermalinks();
+const tags = (await getCollection('tags')).sort((a, b) => a.data.name.localeCompare(b.data.name));
+---
+
+<Base title="Tags">
+  <h1>Tags</h1>
+  {tags.length ? (
+    <ul class="pills">
+      {tags.map((t) => <li><a href={href(permalinks.tags, t.id)}>#{t.data.name}</a></li>)}
+    </ul>
+  ) : (
+    <p>No tags yet.</p>
+  )}
+</Base>

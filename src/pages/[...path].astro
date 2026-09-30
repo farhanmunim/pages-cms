@@ -1,0 +1,70 @@
+---
+/**
+ * Catch-all route for every CMS-driven URL. Prefixes come from the Permalinks
+ * settings file, so editors can move e.g. the blog from /blog to /news
+ * without touching code.
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import PageView from '../views/PageView.astro';
+import EntryView from '../views/EntryView.astro';
+import ListView from '../views/ListView.astro';
+import CategoryView from '../views/CategoryView.astro';
+import CategoriesView from '../views/CategoriesView.astro';
+import TagView from '../views/TagView.astro';
+import TagsView from '../views/TagsView.astro';
+import AuthorView from '../views/AuthorView.astro';
+import AuthorsView from '../views/AuthorsView.astro';
+import { CONTENT_KEYS, getAuthorsSorted, getPermalinks, getPublished, getPublishedPages, routePath, type ContentKey } from '../lib/content';
+
+type RouteProps =
+  | { kind: 'page'; entry: CollectionEntry<'pages'> }
+  | { kind: 'entry'; entry: CollectionEntry<ContentKey> }
+  | { kind: 'list'; collection: ContentKey }
+  | { kind: 'category'; entry: CollectionEntry<'categories'> }
+  | { kind: 'categories' }
+  | { kind: 'tag'; entry: CollectionEntry<'tags'> }
+  | { kind: 'tags' }
+  | { kind: 'author'; entry: CollectionEntry<'authors'> }
+  | { kind: 'authors' };
+
+export async function getStaticPaths() {
+  const p = await getPermalinks();
+  const routes = new Map<string, RouteProps>();
+  const add = (path: string, props: RouteProps) => {
+    if (!path) return; // the site root is src/pages/index.astro
+    if (routes.has(path)) {
+      console.warn(`[routes] Duplicate URL "/${path}" (${props.kind}) ignored; check slugs and Permalinks.`);
+      return;
+    }
+    routes.set(path, props);
+  };
+
+  // Listings first so a page slug cannot shadow a collection index.
+  for (const key of CONTENT_KEYS) add(routePath(p[key]), { kind: 'list', collection: key });
+  add(routePath(p.categories), { kind: 'categories' });
+  add(routePath(p.tags), { kind: 'tags' });
+  add(routePath(p.authors), { kind: 'authors' });
+
+  for (const entry of await getPublishedPages()) add(routePath(p.pages, entry.id), { kind: 'page', entry });
+  for (const key of CONTENT_KEYS) {
+    for (const entry of await getPublished(key)) add(routePath(p[key], entry.id), { kind: 'entry', entry });
+  }
+  for (const entry of await getCollection('categories')) add(routePath(p.categories, entry.id), { kind: 'category', entry });
+  for (const entry of await getCollection('tags')) add(routePath(p.tags, entry.id), { kind: 'tag', entry });
+  for (const entry of await getAuthorsSorted()) add(routePath(p.authors, entry.id), { kind: 'author', entry });
+
+  return [...routes].map(([path, props]) => ({ params: { path }, props }));
+}
+
+const props = Astro.props as RouteProps;
+---
+
+{props.kind === 'page' && <PageView entry={props.entry} />}
+{props.kind === 'entry' && <EntryView entry={props.entry} />}
+{props.kind === 'list' && <ListView collection={props.collection} />}
+{props.kind === 'category' && <CategoryView entry={props.entry} />}
+{props.kind === 'categories' && <CategoriesView />}
+{props.kind === 'tag' && <TagView entry={props.entry} />}
+{props.kind === 'tags' && <TagsView />}
+{props.kind === 'author' && <AuthorView entry={props.entry} />}
+{props.kind === 'authors' && <AuthorsView />}

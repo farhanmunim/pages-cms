@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { authorName, getAuthorsSorted, getPermalinks, href } from '../lib/content';
+
+const permalinks = await getPermalinks();
+const authors = await getAuthorsSorted();
+---
+
+<Base title="Authors">
+  <h1>Authors</h1>
+  <ul>
+    {authors.map((a) => (
+      <li><a href={href(permalinks.authors, a.id)}>{authorName(a)}</a></li>
+    ))}
+  </ul>
+</Base>

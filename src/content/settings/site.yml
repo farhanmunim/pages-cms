@@ -1,0 +1,16 @@
+name: Pages CMS Demo
+tagline: A Git-based website built with Astro and Pages CMS
+description: A demo website whose content is managed in Pages CMS, stored in Git and built with Astro on Cloudflare Pages.
+logo: /media/logo.svg
+favicon: /media/favicon.svg
+social_image: /media/social.svg
+copyright: © 2026 Pages CMS Demo. All rights reserved.
+social:
+  - platform: github
+    url: https://github.com/pages-cms/pages-cms
+    handle: pages-cms
+  - platform: website
+    url: https://pagescms.org
+    handle: ""
+head_html: ""
+footer_html: ""

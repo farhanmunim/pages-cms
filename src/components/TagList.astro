@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import { getPermalinks, href } from '../lib/content';
+
+interface Props {
+  tagIds?: string[];
+  categoryIds?: string[];
+}
+
+const { tagIds = [], categoryIds = [] } = Astro.props;
+const permalinks = await getPermalinks();
+const tags = (await getCollection('tags')).filter((t) => tagIds.includes(t.id));
+const categories = (await getCollection('categories')).filter((c) => categoryIds.includes(c.id));
+---
+
+{(tags.length > 0 || categories.length > 0) && (
+  <ul class="pills">
+    {categories.map((c) => (
+      <li><a href={href(permalinks.categories, c.id)}>{c.data.name}</a></li>
+    ))}
+    {tags.map((t) => (
+      <li><a href={href(permalinks.tags, t.id)}>#{t.data.name}</a></li>
+    ))}
+  </ul>
+)}

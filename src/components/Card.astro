@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, getPermalinks, href, isFeatured, summaryOf, type ContentKey } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<ContentKey>;
+}
+
+const { entry } = Astro.props;
+const permalinks = await getPermalinks();
+const url = href(permalinks[entry.collection], entry.id);
+const date = 'date' in entry.data ? entry.data.date : undefined;
+---
+
+<li class="card">
+  {entry.data.cover?.image && (
+    <a href={url}>
+      <img src={entry.data.cover.image} alt={entry.data.cover.alt ?? ''} loading="lazy" />
+    </a>
+  )}
+  <div class="body">
+    <h3><a href={url}>{entry.data.title}</a></h3>
+    <p class="meta">
+      {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
+      {isFeatured(entry) && <span class="badge">Featured</span>}
+      {entry.data.status === 'draft' && <span class="badge draft">Draft</span>}
+    </p>
+    {summaryOf(entry) && <p>{summaryOf(entry)}</p>}
+  </div>
+</li>
